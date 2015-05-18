@@ -1,3 +1,11 @@
+
+
+.radius(@radius){
+	-webkit-border-radius: @radius;
+	-moz-border-radius: @radius;
+	border-radius: @radius;
+}
+
 header{
 	border-bottom: 1px solid #000;
 	p{
@@ -30,4 +38,20 @@ footer{
 .todolist li:hover{
 	opacity: 0.8;
 	cursor: pointer;
+}
+.form{
+	border: 1px solid #000;
+	.radius(5px);
+	padding: 10px;
+	h4{
+		  text-align: center;
+		  padding-top: 20px;
+		  clear: both;
+	}
+}
+h1{
+	margin: 30px 0;
+}
+.task-wrap ul li{
+	margin: 10px 0;
 }
