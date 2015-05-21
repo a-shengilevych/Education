@@ -2,21 +2,61 @@
 	window.App = {
 		Models: {},
 		Views: {},
-		Collections: {}
+		Collections: {},
+		Router: {}
 	}
 
-	var template = function(id){
+	window.template = function(id){
 		return  _.template($('#' + id).html());
 	}
 
-	App.Models.Task = Backbone.Model.extend({
-		// validate: function (attrs, options) {
-		// 	if ( ! $.trim(attrs.title) ){
-		// 		console.log('Task name must be valid!')
-		// 		return false;				
-		// 	}			
-		// }
+	var vent = _.extend({}, Backbone.Events);
+
+	App.Views.SpecialTask = Backbone.View.extend({
+		initialize: function() {
+			vent.on('specialTasks:show', this.show, this);
+		},
+		show: function(id){
+			console.log('Task number: ' + id);
+		}
 	});
+
+	App.Router = Backbone.Router.extend({
+		routes: {
+			"edit" : "edit",
+			"read" : 'read',
+			"page/:id" : 'page',
+			'post/*simbo' : 'splat',
+			'specialTasks/:id' : 'showSpecial',
+			'*other ' : "default"
+		},
+
+		index: function() {
+			console.log('router : edit');
+		},
+		read: function() {
+			console.log('router : read')
+		},
+		page: function(id){
+			console.log('router : page - id=' + id)
+		},
+		splat: function() {
+			console.log('router : splat')
+		},
+		showSpecial: function(id) {
+			vent.trigger('specialTasks:show', id);
+		},
+		default: function() {
+			console.log('nothing to do here')
+		}
+	});
+
+	new App.Views.SpecialTask();
+
+	new App.Router();
+	Backbone.history.start();
+
+	App.Models.Task = Backbone.Model.extend({});
 
 	App.Views.Task = Backbone.View.extend({
 		tagName: 'li',
@@ -63,6 +103,10 @@
 	App.Views.Tasks = Backbone.View.extend({
 		tagName: 'ul',
 
+		initialize: function() {
+			this.collection.on('add', this.addOne, this)
+		},
+
 		render: function() {
 			this.collection.each(this.addOne, this);
 			return this;
@@ -74,9 +118,27 @@
 	})
 
 	App.Views.AddTask = Backbone.View.extend({
-		initialize: function() {
+		el: '#addTask',
 
-		}
+		events: {
+			'submit' : 'submit'
+		},
+
+		submit: function(event) {
+			event.preventDefault();
+
+			var newTaskTitle = $(event.currentTarget).find('input[type="text"]').val();
+
+			var newTaskModel = new App.Models.Task( {title: newTaskTitle} );
+
+			this.collection.add(newTaskModel);
+
+			console.log(tasksCollection.toJSON());
+		},
+
+		initialize: function() {
+			console.log(this.el.innerHML);
+		}	
 	})
 
 	var tasksCollection = new App.Collections.Task([
@@ -99,5 +161,9 @@
 	tasksView.render();
 
 	$('.task-wrap').html(tasksView.el);
+
+	var addTask = new App.Views.AddTask({ collection: tasksCollection });
+
+
 
 }())
